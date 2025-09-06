@@ -8,30 +8,43 @@
 
 /* Begin PBXBuildFile section */
 		28855EDF1207EA17003DC758 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28855EDE1207EA17003DC758 /* Security.framework */; };
-		7F8AD05107F2503600011548 /* QSDeliciousPlugInSource.nib in Resources */ = {isa = PBXBuildFile; fileRef = 7F8AD05007F2503600011548 /* QSDeliciousPlugInSource.nib */; };
 		7F9441A10803A9D9007EDC31 /* QSObjectSource.name.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7F9441A00803A9D9007EDC31 /* QSObjectSource.name.strings */; };
 		7FB0DC1A0B91FF8600A5B6FF /* bookmark_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB0DC190B91FF8600A5B6FF /* bookmark_icon.png */; };
 		7FB0DC2F0B91FFC600A5B6FF /* QSCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FB0DC2D0B91FFC500A5B6FF /* QSCore.framework */; };
 		7FB0DC300B91FFC600A5B6FF /* QSFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FB0DC2E0B91FFC600A5B6FF /* QSFoundation.framework */; };
 		8D1AC9700486D14A00FE50C9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD92D38A0106425D02CA0E72 /* Cocoa.framework */; };
+		B5CF7D6A2E6B7631008A0EE6 /* QSDeliciousPlugIn_Source.xib in Resources */ = {isa = PBXBuildFile; fileRef = B5CF7D692E6B74FE008A0EE6 /* QSDeliciousPlugIn_Source.xib */; };
+		B5CF7D6E2E6B7A53008A0EE6 /* QSDeliciousAPIProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B5CF7D602E6B73A0008A0EE6 /* QSDeliciousAPIProvider.m */; };
+		B5CF7D6F2E6B7A53008A0EE6 /* QSBookmarkProviderFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B5CF7D642E6B73DA008A0EE6 /* QSBookmarkProviderFactory.m */; };
+		B5CF7D702E6B7A53008A0EE6 /* QSLinkdingProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B5CF7D622E6B73C9008A0EE6 /* QSLinkdingProvider.m */; };
+		B5CF7D712E6B7A53008A0EE6 /* SocialSite.m in Sources */ = {isa = PBXBuildFile; fileRef = B5CF7D5D2E6B7377008A0EE6 /* SocialSite.m */; };
 		D486257618B29CCE00D8CAE4 /* del.icio.us.png in Resources */ = {isa = PBXBuildFile; fileRef = D486257518B29CCE00D8CAE4 /* del.icio.us.png */; };
 		E182BCD306FC8203007BF2C2 /* QSDeliciousPlugIn_Source.h in Resources */ = {isa = PBXBuildFile; fileRef = E182BCCF06FC8203007BF2C2 /* QSDeliciousPlugIn_Source.h */; };
 		E182BCD406FC8203007BF2C2 /* QSDeliciousPlugIn_Source.m in Sources */ = {isa = PBXBuildFile; fileRef = E182BCD006FC8203007BF2C2 /* QSDeliciousPlugIn_Source.m */; };
-		E182BE2506FC9AB5007BF2C2 /* QSDeliciousPrefPane.h in Resources */ = {isa = PBXBuildFile; fileRef = E182BE2206FC9AB5007BF2C2 /* QSDeliciousPrefPane.h */; };
-		E182BE2606FC9AB5007BF2C2 /* QSDeliciousPrefPane.m in Sources */ = {isa = PBXBuildFile; fileRef = E182BE2306FC9AB5007BF2C2 /* QSDeliciousPrefPane.m */; };
 		E182BE3C06FC9B13007BF2C2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E182BE3A06FC9B13007BF2C2 /* Localizable.strings */; };
 		E182BE5B06FC9C46007BF2C2 /* PreferencePanes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E182BE5A06FC9C46007BF2C2 /* PreferencePanes.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		28855EDE1207EA17003DC758 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		7F8AD05007F2503600011548 /* QSDeliciousPlugInSource.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = QSDeliciousPlugInSource.nib; sourceTree = "<group>"; };
 		7F9441A00803A9D9007EDC31 /* QSObjectSource.name.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = QSObjectSource.name.strings; sourceTree = "<group>"; };
 		7FB0DC190B91FF8600A5B6FF /* bookmark_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bookmark_icon.png; sourceTree = "<group>"; };
 		7FB0DC2D0B91FFC500A5B6FF /* QSCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QSCore.framework; path = /Applications/Quicksilver.app/Contents/Frameworks/QSCore.framework; sourceTree = "<absolute>"; };
 		7FB0DC2E0B91FFC600A5B6FF /* QSFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QSFoundation.framework; path = /Applications/Quicksilver.app/Contents/Frameworks/QSFoundation.framework; sourceTree = "<absolute>"; };
 		8D1AC9730486D14A00FE50C9 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D1AC9740486D14A00FE50C9 /* Social Bookmarks Plugin.qsplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Social Bookmarks Plugin.qsplugin"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5CF7D5C2E6B7370008A0EE6 /* SocialSite.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocialSite.h; sourceTree = "<group>"; };
+		B5CF7D5D2E6B7377008A0EE6 /* SocialSite.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocialSite.m; sourceTree = "<group>"; };
+		B5CF7D5E2E6B737E008A0EE6 /* QSBookmarkProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QSBookmarkProvider.h; sourceTree = "<group>"; };
+		B5CF7D5F2E6B7386008A0EE6 /* QSDeliciousAPIProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QSDeliciousAPIProvider.h; sourceTree = "<group>"; };
+		B5CF7D602E6B73A0008A0EE6 /* QSDeliciousAPIProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QSDeliciousAPIProvider.m; sourceTree = "<group>"; };
+		B5CF7D612E6B73A5008A0EE6 /* QSLinkdingProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QSLinkdingProvider.h; sourceTree = "<group>"; };
+		B5CF7D622E6B73C9008A0EE6 /* QSLinkdingProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QSLinkdingProvider.m; sourceTree = "<group>"; };
+		B5CF7D632E6B73D1008A0EE6 /* QSBookmarkProviderFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QSBookmarkProviderFactory.h; sourceTree = "<group>"; };
+		B5CF7D642E6B73DA008A0EE6 /* QSBookmarkProviderFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QSBookmarkProviderFactory.m; sourceTree = "<group>"; };
+		B5CF7D672E6B7457008A0EE6 /* QSDeliciousPlugInTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QSDeliciousPlugInTests.m; sourceTree = "<group>"; };
+		B5CF7D682E6B746E008A0EE6 /* REFACTOR_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = REFACTOR_GUIDE.md; sourceTree = "<group>"; };
+		B5CF7D692E6B74FE008A0EE6 /* QSDeliciousPlugIn_Source.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = QSDeliciousPlugIn_Source.xib; sourceTree = "<group>"; };
 		D475F9AF18B2992D0012243C /* Common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Common.xcconfig; sourceTree = "<group>"; };
 		D475F9B018B2992D0012243C /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		D475F9B118B2992D0012243C /* Developer.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Developer.xcconfig; sourceTree = "<group>"; };
@@ -42,9 +55,7 @@
 		DD92D38A0106425D02CA0E72 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		E182BCCF06FC8203007BF2C2 /* QSDeliciousPlugIn_Source.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = QSDeliciousPlugIn_Source.h; sourceTree = "<group>"; };
 		E182BCD006FC8203007BF2C2 /* QSDeliciousPlugIn_Source.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = QSDeliciousPlugIn_Source.m; sourceTree = "<group>"; };
-		E182BE2206FC9AB5007BF2C2 /* QSDeliciousPrefPane.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = QSDeliciousPrefPane.h; sourceTree = "<group>"; };
-		E182BE2306FC9AB5007BF2C2 /* QSDeliciousPrefPane.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = QSDeliciousPrefPane.m; sourceTree = "<group>"; };
-		E182BE3B06FC9B13007BF2C2 /* en */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E182BE3B06FC9B13007BF2C2 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		E182BE5A06FC9C46007BF2C2 /* PreferencePanes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PreferencePanes.framework; path = /System/Library/Frameworks/PreferencePanes.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -118,12 +129,21 @@
 		32DBCF9F0370C38200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				B5CF7D5C2E6B7370008A0EE6 /* SocialSite.h */,
+				B5CF7D5D2E6B7377008A0EE6 /* SocialSite.m */,
+				B5CF7D5E2E6B737E008A0EE6 /* QSBookmarkProvider.h */,
+				B5CF7D5F2E6B7386008A0EE6 /* QSDeliciousAPIProvider.h */,
+				B5CF7D602E6B73A0008A0EE6 /* QSDeliciousAPIProvider.m */,
+				B5CF7D612E6B73A5008A0EE6 /* QSLinkdingProvider.h */,
+				B5CF7D622E6B73C9008A0EE6 /* QSLinkdingProvider.m */,
+				B5CF7D632E6B73D1008A0EE6 /* QSBookmarkProviderFactory.h */,
+				B5CF7D642E6B73DA008A0EE6 /* QSBookmarkProviderFactory.m */,
+				B5CF7D672E6B7457008A0EE6 /* QSDeliciousPlugInTests.m */,
+				B5CF7D682E6B746E008A0EE6 /* REFACTOR_GUIDE.md */,
+				B5CF7D692E6B74FE008A0EE6 /* QSDeliciousPlugIn_Source.xib */,
 				E182BE3A06FC9B13007BF2C2 /* Localizable.strings */,
 				E182BCCF06FC8203007BF2C2 /* QSDeliciousPlugIn_Source.h */,
 				E182BCD006FC8203007BF2C2 /* QSDeliciousPlugIn_Source.m */,
-				7F8AD05007F2503600011548 /* QSDeliciousPlugInSource.nib */,
-				E182BE2206FC9AB5007BF2C2 /* QSDeliciousPrefPane.h */,
-				E182BE2306FC9AB5007BF2C2 /* QSDeliciousPrefPane.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -171,6 +191,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0500;
+				TargetAttributes = {
+					8D1AC9600486D14A00FE50C9 = {
+						ProvisioningStyle = Manual;
+					};
+				};
 			};
 			buildConfigurationList = 7F07AFAE085E432E00E2AFC4 /* Build configuration list for PBXProject "QSDeliciousPlugIn" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -199,9 +224,8 @@
 			files = (
 				E182BCD306FC8203007BF2C2 /* QSDeliciousPlugIn_Source.h in Resources */,
 				D486257618B29CCE00D8CAE4 /* del.icio.us.png in Resources */,
-				E182BE2506FC9AB5007BF2C2 /* QSDeliciousPrefPane.h in Resources */,
 				E182BE3C06FC9B13007BF2C2 /* Localizable.strings in Resources */,
-				7F8AD05107F2503600011548 /* QSDeliciousPlugInSource.nib in Resources */,
+				B5CF7D6A2E6B7631008A0EE6 /* QSDeliciousPlugIn_Source.xib in Resources */,
 				7F9441A10803A9D9007EDC31 /* QSObjectSource.name.strings in Resources */,
 				7FB0DC1A0B91FF8600A5B6FF /* bookmark_icon.png in Resources */,
 			);
@@ -231,8 +255,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5CF7D6E2E6B7A53008A0EE6 /* QSDeliciousAPIProvider.m in Sources */,
+				B5CF7D6F2E6B7A53008A0EE6 /* QSBookmarkProviderFactory.m in Sources */,
+				B5CF7D702E6B7A53008A0EE6 /* QSLinkdingProvider.m in Sources */,
+				B5CF7D712E6B7A53008A0EE6 /* SocialSite.m in Sources */,
 				E182BCD406FC8203007BF2C2 /* QSDeliciousPlugIn_Source.m in Sources */,
-				E182BE2606FC9AB5007BF2C2 /* QSDeliciousPrefPane.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

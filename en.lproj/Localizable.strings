@@ -1,1 +1,18 @@
-"QSDeliciousPrefPane" = "del.icio.us";
+"QSDeliciousPrefPane" = "Social Bookmarks";
+
+/* Site Names */
+"SiteDelicious" = "del.icio.us";
+"SiteMagnolia" = "ma.gnolia.com";
+"SitePinboard" = "Pinboard";
+"SiteLinkding" = "Linkding";
+
+/* UI Labels */
+"Username" = "Username";
+"Password" = "Password";
+"Host" = "Host";
+"IncludeTags" = "Include Tags";
+"Site" = "Bookmark Service";
+
+/* Help Text */
+"LinkdingHostHelp" = "For Linkding, enter your server URL (e.g., https://bookmarks.example.com)";
+"LinkdingPasswordHelp" = "For Linkding, use your API Token as the password";

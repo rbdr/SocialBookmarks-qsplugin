@@ -6,17 +6,20 @@
 //  Copyright __MyCompanyName__ 2004. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+#import <QSCore/QSCore.h>
+#import "SocialSite.h"
+#import "QSBookmarkProvider.h"
+#import "QSBookmarkProviderFactory.h"
 
-#import "QSDeliciousPlugIn_Source.h"
-
-@interface QSDeliciousPlugIn_Source : QSObjectSource <NSXMLParserDelegate> {
-	NSMutableArray *posts;
-	NSMutableArray *tags;
-	NSMutableArray *dates;
-	
-	IBOutlet NSTextField *userField;
-	IBOutlet NSTextField *passField;
+@interface QSDeliciousPlugIn_Source : QSObjectSource {
+  IBOutlet NSTextField *userField;
+  IBOutlet NSTextField *passField;
+  IBOutlet NSTextField *hostField;
 }
-
 @end
 
+@interface QSCatalogEntry (OldStyleSourceSupport)
+@property NSMutableDictionary *info;
+- (id)objectForKey:(NSString *)key;
+@end

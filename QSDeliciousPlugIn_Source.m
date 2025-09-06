@@ -8,126 +8,143 @@
 
 #import "QSDeliciousPlugIn_Source.h"
 #import <QSCore/QSCore.h>
-
 #import <Security/Security.h>
 
 @implementation QSDeliciousPlugIn_Source
 
 + (void)initialize {
-	[self setKeys:[NSArray arrayWithObject:@"selection"] triggerChangeNotificationsForDependentKey:@"currentPassword"];
+  [self setKeys:[NSArray arrayWithObject:@"selection"] triggerChangeNotificationsForDependentKey:@"currentPassword"];
 }
 
 - (BOOL)indexIsValidFromDate:(NSDate *)indexDate forEntry:(NSDictionary *)theEntry {
-	return -[indexDate timeIntervalSinceNow] < 24 * 60 * 60;
+  return -[indexDate timeIntervalSinceNow] < 24 * 60 * 60;
 }
 
-- (BOOL)isVisibleSource{ return YES; }
+- (BOOL)isVisibleSource{
+    return YES;
+}
 
 - (NSImage *) iconForEntry:(NSDictionary *)dict {
     return [[NSBundle bundleForClass:[self class]]imageNamed:@"bookmark_icon"];
 }
 
-- (NSString *) mainNibName {
-	return @"QSDeliciousPrefPane";
+- (NSView *)settingsView
+{
+  if (![super settingsView]) {
+    [[NSBundle bundleForClass:[self class]] loadNibNamed:NSStringFromClass([self class]) owner:self topLevelObjects:NULL];
+  }
+  return [super settingsView];
 }
 
-- (void)populateFields {
-	NSLog(@"populating: %@/%@", [self.selectedEntry.sourceSettings objectForKey:@"username"], [self.selectedEntry.sourceSettings objectForKey:@"site"]);
+#pragma mark - Settings Helpers
+
+- (SocialSite)siteIndex {
+  NSDictionary *settings = self.selectedEntry.sourceSettings;
+  return [settings objectForKey:@"site"] != nil ? [[settings objectForKey:@"site"] integerValue] : SocialSiteDelicious;
 }
 
-- (NSView *) settingsView {
-	if (![super settingsView]) {
-		[[NSBundle bundleForClass:[self class]] loadNibNamed:@"QSDeliciousPlugInSource" owner:self topLevelObjects:NULL];
-	}
-    return [super settingsView];
+- (NSString *)currentUsername {
+  return [self.selectedEntry.sourceSettings objectForKey:@"username"];
 }
 
-// Keychain Access -- The QS Built-in ones seems to be broken
+- (NSString *)currentHost {
+  return [self.selectedEntry.sourceSettings objectForKey:@"host"];
+}
+
+- (NSString *)currentPassword {
+  return [self.selectedEntry.sourceSettings objectForKey:@"password"];
+}
+
+- (BOOL)includeTags {
+    return [[self.selectedEntry.sourceSettings objectForKey:@"includeTags"] boolValue];
+}
+
+#pragma mark - Keychain Access
 
 - (SecProtocolType)protocolTypeForString:(NSString *)protocol {
-	if ([protocol isEqualToString:@"ftp"]) return kSecProtocolTypeFTP;
-	else if ([protocol isEqualToString:@"http"]) return kSecProtocolTypeHTTP;
-	else if ([protocol isEqualToString:@"sftp"]) return kSecProtocolTypeFTPS;
-	else if ([protocol isEqualToString:@"eppc"]) return kSecProtocolTypeEPPC;
-	else if ([protocol isEqualToString:@"afp"]) return kSecProtocolTypeAFP;
-	else if ([protocol isEqualToString:@"smb"]) return kSecProtocolTypeSMB;
-	else if ([protocol isEqualToString:@"ssh"]) return kSecProtocolTypeSSH;
-	else if ([protocol isEqualToString:@"telnet"]) return kSecProtocolTypeTelnet;	
-	return 0;
+  if ([protocol isEqualToString:@"ftp"]) return kSecProtocolTypeFTP;
+  else if ([protocol isEqualToString:@"http"]) return kSecProtocolTypeHTTP;
+  else if ([protocol isEqualToString:@"sftp"]) return kSecProtocolTypeFTPS;
+  else if ([protocol isEqualToString:@"eppc"]) return kSecProtocolTypeEPPC;
+  else if ([protocol isEqualToString:@"afp"]) return kSecProtocolTypeAFP;
+  else if ([protocol isEqualToString:@"smb"]) return kSecProtocolTypeSMB;
+  else if ([protocol isEqualToString:@"ssh"]) return kSecProtocolTypeSSH;
+  else if ([protocol isEqualToString:@"telnet"]) return kSecProtocolTypeTelnet;
+  return 0;
 }
 
 - (NSString *)passwordForHost:(NSString *)host user:(NSString *)user andType:(SecProtocolType)type {
-	const char 		*buffer;
-	UInt32 			length = 0;
-	OSErr			err;
-	
-	err = SecKeychainFindInternetPassword(NULL,
-										  (UInt32)[host length], [host UTF8String],
-										  0,
-										  NULL,
-										  (UInt32)[user length], [user UTF8String],
-										  0, NULL,
-										  0,
-										  type,
-										  0,
-										  &length, (void**)&buffer,
-										  NULL);
-	
-	if (err == noErr) {
-		NSString *password = [NSString stringWithUTF8String:buffer];
-		SecKeychainItemFreeContent(NULL,(void *)buffer);
-		return password;
-	}
-	return nil;
+  const char     *buffer;
+  UInt32       length = 0;
+  OSErr      err;
+  
+  err = SecKeychainFindInternetPassword(NULL,
+                      (UInt32)[host length], [host UTF8String],
+                      0,
+                      NULL,
+                      (UInt32)[user length], [user UTF8String],
+                      0, NULL,
+                      0,
+                      type,
+                      0,
+                      &length, (void**)&buffer,
+                      NULL);
+  
+  if (err == noErr) {
+    NSString *password = [NSString stringWithUTF8String:buffer];
+    SecKeychainItemFreeContent(NULL,(void *)buffer);
+    return password;
+  }
+  return nil;
 }
 
 - (NSString *)passwordForHost:(NSString *)host user:(NSString *)user andScheme:(NSString *)scheme {
-	NSString *password = nil;
-	
-	SecProtocolType type = [self protocolTypeForString:scheme];
-	
-	password = [self passwordForHost:host user:user andType:type];
-	
-	if (!password && type == kSecProtocolTypeFTP)
-		password = [self passwordForHost:host user:user andType:kSecProtocolTypeFTPAccount]; // Workaround for Transmit's old type usage
-	if ( !password )
-		password = [self passwordForHost:host user:user andType:0];
-	if ( !password )
-		NSLog(@"Couldn't find password. URL:%@ %@ %@", host, user,scheme );
-	return password;
+  NSString *password = nil;
+  
+  SecProtocolType type = [self protocolTypeForString:scheme];
+  
+  password = [self passwordForHost:host user:user andType:type];
+  
+  if (!password && type == kSecProtocolTypeFTP)
+    password = [self passwordForHost:host user:user andType:kSecProtocolTypeFTPAccount]; // Workaround for Transmit's old type usage
+  if ( !password )
+    password = [self passwordForHost:host user:user andType:0];
+  if ( !password )
+    NSLog(@"Couldn't find password. URL:%@ %@ %@", host, user,scheme );
+  return password;
 }
 
 - (NSString *)keychainPasswordForURL:(NSURL *)url {
-	return [self passwordForHost:[url host] user:[url user] andScheme:[url scheme]];
+  return [self passwordForHost:[url host] user:[url user] andScheme:[url scheme]];
 }
 
 - (OSErr)addURLPasswordToKeychain:(NSURL *)url {
-	OSErr			err;
-	
-	NSString *host = [url host];
-	NSString *user = [url user];
-	NSString *pass = [url password];
-	
-	SecProtocolType type = [self protocolTypeForString:[url scheme]];
-	
-	SecKeychainItemRef existing = NULL;
-	
-	err = SecKeychainFindInternetPassword(NULL,
-										  (UInt32)[host length], [host UTF8String],
-										  0, NULL,
-										  (UInt32)[user length], [user UTF8String],
-										  0, NULL,
-										  0,
-										  type,
-										  0,
-										  NULL,NULL,
-										  &existing);
-	
-	if ( !err ) {
-		err = SecKeychainItemModifyContent( existing, NULL, (UInt32)[pass length], [pass UTF8String] );
-		CFRelease( existing );
-	} else {
-		err = SecKeychainAddInternetPassword(NULL,
+  OSErr      err;
+  
+  NSString *host = [url host];
+  NSString *user = [url user];
+  NSString *pass = [url password];
+  
+  SecProtocolType type = [self protocolTypeForString:[url scheme]];
+  
+  SecKeychainItemRef existing = NULL;
+  
+  err = SecKeychainFindInternetPassword(NULL,
+                      (UInt32)[host length], [host UTF8String],
+                      0, NULL,
+                      (UInt32)[user length], [user UTF8String],
+                      0, NULL,
+                      0,
+                      type,
+                      0,
+                      NULL,NULL,
+                      &existing);
+  
+  if ( !err ) {
+    err = SecKeychainItemModifyContent( existing, NULL, (UInt32)[pass length], [pass UTF8String] );
+    CFRelease( existing );
+  } else {
+    err = SecKeychainAddInternetPassword(NULL,
                                              (UInt32)[host length], [host UTF8String],
                                              0, NULL,
                                              (UInt32)[user length], [user UTF8String],
@@ -138,218 +155,130 @@
                                              (UInt32)[pass length], [pass UTF8String],
                                              NULL);
     }
-	
-	return err;
+  
+  return err;
 }
 
-// Site Index/API/URL
-
-- (NSInteger)siteIndex {
-	NSDictionary *settings = self.selectedEntry.sourceSettings;
-	return [settings objectForKey:@"site"] != nil ? [[settings objectForKey:@"site"] integerValue] : 0;
-}
-
-- (NSString *)siteURLForIndex:(NSInteger)siteIndex {
-	if (siteIndex == 0) return @"del.icio.us";
-	else if (siteIndex == 1) return @"ma.gnolia.com";
-	else if (siteIndex == 2) return @"pinboard.in";
-	else return nil;
-}
-
-- (NSString *)reversedSiteURLForIndex:(NSInteger)siteIndex {
-	if (siteIndex == 0) return @"us.icio.del";
-	else if (siteIndex == 1) return @"com.gnolia.ma";
-	else if (siteIndex == 2) return @"in.pinboard";
-	else return nil;
-}
-
-- (NSString *)tagURLForIndex:(NSInteger)siteIndex {
-	return [NSString stringWithFormat:@"tag.%@", [self reversedSiteURLForIndex:[self siteIndex]]];
-}
-
-- (NSString *)apiURLForIndex:(NSInteger)siteIndex {
-	if (siteIndex == 0) return @"api.del.icio.us/v1";
-	else if (siteIndex == 1) return @"ma.gnolia.com/api/mirrord/v1";
-	else if (siteIndex == 2) return @"api.pinboard.in/v1";
-	else return nil;
-}
-
-// Current Site/API URL
-
-- (NSString *)currentSiteURL {
-	return [self siteURLForIndex:[self siteIndex]];
-}
-
-- (NSString *)currentAPIURL {
-	return [self apiURLForIndex:[self siteIndex]];
-}
-
-// Useranme
-
-- (NSString *)currentUsername {
-	return [self.selectedEntry.sourceSettings objectForKey:@"username"];
-}
-
-// Password Related
-
-- (NSString *)currentPassword {
-	NSString *account = [self currentUsername];
-	if (!account) return nil;
-	
-	NSURL *keychainURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@@%@/", account, [self currentSiteURL]]];
-	NSString *password = [self keychainPasswordForURL:keychainURL];
-	
-	return password;
+- (NSString *)oldCurrentPassword {
+  NSString *account = [self currentUsername];
+  if (!account) return nil;
+  
+    SocialSite site = [self siteIndex];
+    NSString *host = nil;
+    
+    // For Linkding, use the custom host; for others, use the standard site URL
+    if (site == SocialSiteLinkding) {
+        host = [self currentHost];
+        if (!host) return nil;
+    } else {
+        host = [SocialSiteHelper siteURLForSite:site];
+    }
+  
+  NSURL *keychainURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@@%@/", account, host]];
+  NSString *password = [self keychainPasswordForURL:keychainURL];
+  
+  return password;
 }
 
 - (void)setCurrentPassword:(NSString *)newPassword {
-	NSString *account = [self currentUsername];
-	if (!account) return;
-	if ([newPassword length] <= 0) return;
-	
-	NSURL *keychainURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%@@%@/", account, newPassword, [self currentSiteURL]]];
-	
-	[self addURLPasswordToKeychain:keychainURL];
+  NSString *account = [self currentUsername];
+  if (!account) return;
+  if ([newPassword length] <= 0) return;
+  
+    SocialSite site = [self siteIndex];
+    NSString *host = nil;
+    
+    // For Linkding, use the custom host; for others, use the standard site URL
+    if (site == SocialSiteLinkding) {
+        host = [self currentHost];
+        if (!host) return;
+    } else {
+        host = [SocialSiteHelper siteURLForSite:site];
+    }
+  
+  NSURL *keychainURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%@@%@/", account, newPassword, host]];
+  
+  [self addURLPasswordToKeychain:keychainURL];
 }
 
-// Bookarmk/Caching
-
-- (NSData *)cachedBookmarkData {
-	NSString *cachePath=[QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", [self currentSiteURL]], NO) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.xml", [self currentUsername]]];
-	return [NSData dataWithContentsOfFile:cachePath];
-}
-
-- (NSData *)bookmarkData {
-	if (![self currentUsername] || ![self currentPassword]) return nil;
-	
-	NSString *urlString = [NSString stringWithFormat:@"https://%@:%@@%@/posts/all?", [self currentUsername], [self currentPassword], [self currentAPIURL]];
-	NSURL *requestURL = [NSURL URLWithString:urlString];
-	
-	NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:requestURL
-															  cachePolicy:NSURLRequestUseProtocolCachePolicy
-														  timeoutInterval:60.0];
-	[theRequest setHTTPMethod:@"POST"];
-	[theRequest setValue:@"text/xml" forHTTPHeaderField:@"Content-type"];
-	[theRequest setValue:@"Quicksilver (Blacktree,MacOSX)" forHTTPHeaderField:@"User-Agent"]; 
-	
-	NSError *error;
-	NSData *data = [NSURLConnection sendSynchronousRequest:theRequest returningResponse:nil error:&error];
-	
-	NSString *cachePath = [QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", [self currentSiteURL]], YES) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.xml", [self currentUsername]]];
-	[data writeToFile:cachePath atomically:NO];	
-	
-	return data;
-}
-
-- (QSObject *)objectForPost:(NSDictionary *)post {
-	QSObject *newObject=[QSObject makeObjectWithIdentifier:[post objectForKey:@"hash"]];
-	[newObject setObject:[post objectForKey:@"href"] forType:QSURLType];
-	[newObject setName:[post objectForKey:@"description"]];
-	[newObject setDetails:[post objectForKey:@"extended"]];
-	[newObject setPrimaryType:QSURLType];
-	//NSDate *date=[NSCalendarDate dateWithString:[post objectForKey:@"time"] 
-	//							 calendarFormat:@"%Y-%m-%dT%H:%M:%SZ"];
-	//[date setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-	//[newObject setObject:date forMeta:kQSObjectCreationDate];
-	return newObject;
-}
+#pragma mark - Objects For Entry
 
 - (NSArray *)objectsForEntry:(NSDictionary *)theEntry {
-	NSData *data = nil;//[self cachedBookmarkData];
-		if (![data length]) data = [self bookmarkData];
-	
-	NSXMLParser *postParser = [[NSXMLParser alloc]initWithData:data];
-	[postParser setDelegate:self];
-	
-	posts = [NSMutableArray arrayWithCapacity:1];
-	
-	[postParser parse];
-	
-    NSMutableArray *objects=[NSMutableArray arrayWithCapacity:1];
-    QSObject *newObject;
-	NSEnumerator *e=[posts objectEnumerator];
-	NSDictionary *post;
-	NSMutableSet *tagSet=[NSMutableSet set];
-	while(post=[e nextObject]){
-		newObject=[self objectForPost:post];
-		[tagSet addObjectsFromArray:[[post objectForKey:@"tag"]componentsSeparatedByString:@" "]];
-		[objects addObject:newObject];
-	}
-	NSString *tag;
-	e=[tagSet objectEnumerator];
-	
-	if ([[theEntry objectForKey:@"includeTags"]boolValue]){
-		while(tag=[e nextObject]){
-			newObject=[QSObject makeObjectWithIdentifier:[NSString stringWithFormat:@"[del.icio.us tag]:%@",tag]];
-			[newObject setObject:tag forType:[self tagURLForIndex:[self siteIndex]]];
-			[newObject setObject:[self currentUsername] forMeta:@"us.icio.del.username"];
-			[newObject setName:tag];
-			[newObject setPrimaryType:[self tagURLForIndex:[self siteIndex]]];
-			[objects addObject:newObject];
-		}
-	}
-	[postParser release];
-	
-    return objects;
+  NSLog(@"WE HAVE BEEN REQUESTED");
+    SocialSite site = [self siteIndex];
+    NSString *username = [self currentUsername];
+    NSString *password = [self currentPassword];
+    NSString *host = [self currentHost];
+    BOOL includeTags = [self includeTags];
     
+    // Get the appropriate provider using the factory
+    QSBookmarkProviderFactory *factory = [QSBookmarkProviderFactory sharedFactory];
+    id<QSBookmarkProvider> provider = [factory providerForSite:site username:username password:password host:host];
+    
+  NSLog(@"Checking for %ld, user %@, pass %@, host %@", (long)site, username, password, host);
+    if (!provider) {
+        NSLog(@"No provider available for site %ld with username %@", (long)site, username);
+        return @[];
+    }
+    
+    return [provider fetchBookmarksForSite:site username:username password:password host:host includeTags:includeTags];
 }
 
-- (NSArray *)objectsForTag:(NSString *)tag username:(NSString *)username{
-	NSData *data=[self cachedBookmarkData];
-	
-	NSXMLParser *postParser=[[NSXMLParser alloc]initWithData:data];
-	[postParser setDelegate:self];
-	posts=[NSMutableArray arrayWithCapacity:1];
-	[postParser parse];
-	
-    NSMutableArray *objects=[NSMutableArray arrayWithCapacity:1];
-    QSObject *newObject;
-	NSEnumerator *e=[posts objectEnumerator];
-	NSDictionary *post;
-	// NSMutableSet *tagSet=[NSMutableSet set];
-	while(post=[e nextObject]){
-		if ([[post objectForKey:@"tag"]rangeOfString:tag].location==NSNotFound)continue;
-		newObject=[self objectForPost:post];
-		[objects addObject:newObject];
-	}
-	return objects;
+- (NSArray *)objectsForTag:(NSString *)tag username:(NSString *)username {
+    SocialSite site = [self siteIndex];
+    NSString *password = [self currentPassword];
+    NSString *host = [self currentHost];
+    
+    // Get the appropriate provider using the factory
+    QSBookmarkProviderFactory *factory = [QSBookmarkProviderFactory sharedFactory];
+    id<QSBookmarkProvider> provider = [factory providerForSite:site username:username password:password host:host];
+    
+    if (!provider) {
+        NSLog(@"No provider available for site %ld with username %@", (long)site, username);
+        return @[];
+    }
+    
+    // Check if provider supports tag-based fetching
+    if ([provider respondsToSelector:@selector(fetchBookmarksForTag:site:username:password:host:)]) {
+        return [provider fetchBookmarksForTag:tag site:site username:username password:password host:host];
+    }
+    
+    return @[];
 }
 
-// Object Handler Methods
+#pragma mark - Object Handler Methods
 
-/*
 - (void)setQuickIconForObject:(QSObject *)object {
-	[object setIcon:nil]; // An icon that is either already in memory or easy to load
-}
-
-- (BOOL)loadIconForObject:(QSObject *)object {
-	return NO;
-	id data=[object objectForType:QSDeliciousPlugInType];
-	[object setIcon:nil];
-	return YES;
-}
-*/
-
-- (void)setQuickIconForObject:(QSObject *)object {
-	[object setIcon:[[NSBundle bundleForClass:[self class]]imageNamed:@"bookmark_icon"]];
+  [object setIcon:[[NSBundle bundleForClass:[self class]]imageNamed:@"bookmark_icon"]];
 }
 
 - (BOOL)loadChildrenForObject:(QSObject *)object {
-	[object setChildren:[self objectsForTag:[object objectForType:[self tagURLForIndex:[self siteIndex]]]
-								   username:[object objectForMeta:@"us.icio.del.username"]]];
-	return YES;
-}
-
-// NSXMLParserDelegate Functions
-
-- (void)parser:(NSXMLParser*)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
-	NSLog(@"XML Parser started %@ %@ %@ %@",elementName,namespaceURI,qName,attributeDict);
-	if ([elementName isEqualToString:@"post"] && attributeDict)
-		[posts addObject:attributeDict];
-}
-
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-	NSLog(@"XML Parser ended %@ %@ %@", elementName, namespaceURI, qName);
+    SocialSite site = [self siteIndex];
+    
+    NSString *tagType = nil;
+    if (site == SocialSiteLinkding) {
+        tagType = @"tag.linkding";
+    } else {
+        NSString *reversedURL = [SocialSiteHelper reversedSiteURLForSite:site];
+        tagType = [NSString stringWithFormat:@"tag.%@", reversedURL];
+    }
+    
+    NSString *tag = [object objectForType:tagType];
+    if (!tag) return NO;
+    
+    NSString *username = nil;
+    if (site == SocialSiteLinkding) {
+        username = [object objectForMeta:@"linkding.username"];
+    } else {
+        NSString *reversedURL = [SocialSiteHelper reversedSiteURLForSite:site];
+        username = [object objectForMeta:[NSString stringWithFormat:@"%@.username", reversedURL]];
+    }
+    
+    if (!username) return NO;
+    
+    NSArray *children = [self objectsForTag:tag username:username];
+    [object setChildren:children];
+    return YES;
 }
 
 @end

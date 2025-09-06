@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24123.1" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24123.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="QSDeliciousPlugIn_Source">
+            <connections>
+                <outlet property="hostField" destination="host-text-field" id="host-outlet"/>
+                <outlet property="passField" destination="password-text-field" id="password-outlet"/>
+                <outlet property="settingsView" destination="settings-view" id="settings-view-outlet"/>
+                <outlet property="userField" destination="username-text-field" id="username-outlet"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="settings-view">
+            <rect key="frame" x="0.0" y="0.0" width="249" height="252"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="site-label">
+                    <rect key="frame" x="35" y="218" width="53" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="Eoo-3h-Uin"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Service:" id="site-label-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="username-label">
+                    <rect key="frame" x="18" y="179" width="70" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="y8T-Rp-nV6"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Username:" id="username-label-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="password-label">
+                    <rect key="frame" x="22" y="140" width="66" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="BpN-ax-hN6"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Password:" id="password-label-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="host-label">
+                    <rect key="frame" x="51" y="101" width="37" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="SmD-SH-xQe"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Host:" id="host-label-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="host-help-label">
+                    <rect key="frame" x="94" y="75" width="137" height="14"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Required for Linkding" id="host-help-label-cell">
+                        <font key="font" metaFont="smallSystem"/>
+                        <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button id="include-tags-checkbox">
+                    <rect key="frame" x="96" y="52" width="99" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="check" title="Include Tags" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="include-tags-checkbox-cell">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="egr-kg-1on"/>
+                    </constraints>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.includeTags" id="lGp-jw-qTE"/>
+                    </connections>
+                </button>
+                <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="site-popup">
+                    <rect key="frame" x="96" y="214" width="133" height="24"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <popUpButtonCell key="cell" type="push" title="del.icio.us" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="site-delicious" id="site-popup-cell">
+                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="message"/>
+                        <menu key="menu" id="site-menu">
+                            <items>
+                                <menuItem title="del.icio.us" state="on" id="site-delicious"/>
+                                <menuItem title="ma.gnolia.com" tag="1" id="site-magnolia"/>
+                                <menuItem title="Pinboard" tag="2" id="site-pinboard"/>
+                                <menuItem title="Linkding" tag="3" id="site-linkding"/>
+                            </items>
+                        </menu>
+                    </popUpButtonCell>
+                    <connections>
+                        <binding destination="-2" name="selectedTag" keyPath="selectedEntry.sourceSettings.site" id="QdB-Zt-A1e"/>
+                    </connections>
+                </popUpButton>
+                <textField focusRingType="none" verticalHuggingPriority="750" id="username-text-field">
+                    <rect key="frame" x="96" y="175" width="133" height="24"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="fas-E9-Pf6"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="username-text-field-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.username" id="Xmw-cK-SeB"/>
+                    </connections>
+                </textField>
+                <secureTextField focusRingType="none" verticalHuggingPriority="750" id="password-text-field">
+                    <rect key="frame" x="96" y="136" width="133" height="24"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="dQF-Rc-KB8"/>
+                    </constraints>
+                    <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="password-text-field-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        <allowedInputSourceLocales>
+                            <string>NSAllRomanInputSourcesLocaleIdentifier</string>
+                        </allowedInputSourceLocales>
+                    </secureTextFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.password" id="iVD-TC-GTV"/>
+                    </connections>
+                </secureTextField>
+                <textField focusRingType="none" verticalHuggingPriority="750" id="host-text-field">
+                    <rect key="frame" x="96" y="97" width="133" height="24"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="bfW-V3-8A5"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="host-text-field-cell">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.host" id="7qk-HC-e8v"/>
+                    </connections>
+                </textField>
+            </subviews>
+            <point key="canvasLocation" x="155.5" y="180"/>
+        </customView>
+        <objectController id="JpK-62-U8F" userLabel="Settings">
+            <declaredKeys>
+                <string>info.username</string>
+                <string>info.site</string>
+                <string>info.includeTags</string>
+                <string>info.host</string>
+            </declaredKeys>
+            <connections>
+                <binding destination="-2" name="contentObject" keyPath="self.selectedEntry" id="r1i-y5-4Mi"/>
+                <outlet property="content" destination="-2" id="UlK-eW-ayD"/>
+            </connections>
+        </objectController>
+    </objects>
+</document>
