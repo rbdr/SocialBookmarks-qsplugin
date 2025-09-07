@@ -205,6 +205,9 @@
 
 - (NSArray *)objectsForEntry:(NSDictionary *)theEntry {
   NSLog(@"WE HAVE BEEN REQUESTED");
+  
+  [[NSNotificationCenter defaultCenter] postNotificationName:QSCatalogEntryChangedNotification object:theEntry];
+  
     SocialSite site = [self siteIndex];
     NSString *username = [self currentUsername];
     NSString *password = [self currentPassword];
