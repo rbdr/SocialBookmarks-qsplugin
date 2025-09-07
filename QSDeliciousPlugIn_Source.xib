@@ -88,6 +88,7 @@
                         <constraint firstAttribute="height" constant="16" id="egr-kg-1on"/>
                     </constraints>
                     <connections>
+                        <action selector="settingsChanged:" target="-2" id="BfD-Jh-b7j"/>
                         <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.includeTags" id="lGp-jw-qTE"/>
                     </connections>
                 </button>
@@ -107,6 +108,7 @@
                         </menu>
                     </popUpButtonCell>
                     <connections>
+                        <action selector="settingsChanged:" target="-2" id="oJT-OY-H1d"/>
                         <binding destination="-2" name="selectedTag" keyPath="selectedEntry.sourceSettings.site" id="QdB-Zt-A1e"/>
                     </connections>
                 </popUpButton>
@@ -122,6 +124,7 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
+                        <action selector="settingsChanged:" target="-2" id="BAP-23-5Li"/>
                         <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.username" id="Xmw-cK-SeB"/>
                     </connections>
                 </textField>
@@ -140,6 +143,7 @@
                         </allowedInputSourceLocales>
                     </secureTextFieldCell>
                     <connections>
+                        <action selector="settingsChanged:" target="-2" id="mWc-uc-BZi"/>
                         <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.password" id="iVD-TC-GTV"/>
                     </connections>
                 </secureTextField>
@@ -155,6 +159,7 @@
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
+                        <action selector="settingsChanged:" target="-2" id="4GR-6l-ZnG"/>
                         <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.host" id="7qk-HC-e8v"/>
                     </connections>
                 </textField>

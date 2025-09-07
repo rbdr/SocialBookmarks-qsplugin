@@ -17,6 +17,8 @@
   IBOutlet NSTextField *passField;
   IBOutlet NSTextField *hostField;
 }
+
+- (IBAction)settingsChanged:(id)sender;
 @end
 
 @interface QSCatalogEntry (OldStyleSourceSupport)

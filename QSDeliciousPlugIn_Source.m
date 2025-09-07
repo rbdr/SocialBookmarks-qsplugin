@@ -12,10 +12,6 @@
 
 @implementation QSDeliciousPlugIn_Source
 
-+ (void)initialize {
-  [self setKeys:[NSArray arrayWithObject:@"selection"] triggerChangeNotificationsForDependentKey:@"currentPassword"];
-}
-
 - (BOOL)indexIsValidFromDate:(NSDate *)indexDate forEntry:(NSDictionary *)theEntry {
   return -[indexDate timeIntervalSinceNow] < 24 * 60 * 60;
 }
@@ -57,6 +53,11 @@
 
 - (BOOL)includeTags {
     return [[self.selectedEntry.sourceSettings objectForKey:@"includeTags"] boolValue];
+}
+
+
+- (IBAction)settingsChanged:(id)sender {
+  [[NSNotificationCenter defaultCenter] postNotificationName:QSCatalogEntryChangedNotification object:self.selectedEntry];
 }
 
 #pragma mark - Keychain Access
@@ -205,8 +206,6 @@
 
 - (NSArray *)objectsForEntry:(NSDictionary *)theEntry {
   NSLog(@"WE HAVE BEEN REQUESTED");
-  
-  [[NSNotificationCenter defaultCenter] postNotificationName:QSCatalogEntryChangedNotification object:theEntry];
   
     SocialSite site = [self siteIndex];
     NSString *username = [self currentUsername];
