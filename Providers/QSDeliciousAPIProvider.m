@@ -47,38 +47,45 @@
 }
 
 - (NSURL *)requestURLForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host {
-  NSString *apiURL = [self apiURLForSite:site andHost: host];
+    NSString *apiURL = [self apiURLForSite:site andHost: host];
     if (!apiURL) return nil;
   
   NSString *urlString;
   if ([self usesAuthToken:site]) {
     // Pinboard and pinboard compatible sites require an
     // auth token rather than a password.
-    urlString = [NSString stringWithFormat:@"%@/posts/all?auth_token=%@:%@", apiURL, username, password];
+    urlString = [NSString stringWithFormat:@"%@/posts/all?auth_token=%@", apiURL, password];
   } else {
     urlString = [NSString stringWithFormat:@"https://%@:%@@%@/posts/all?", username, password, apiURL];
   }
     return [NSURL URLWithString:urlString];
 }
 
-- (NSData *)cachedBookmarkDataForSite:(SocialSite)site username:(NSString *)username {
-    NSString *siteURL = [SocialSiteHelper siteURLForSite:site];
-    NSString *cachePath = [QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", siteURL], NO) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.xml", username]];
-    return [NSData dataWithContentsOfFile:cachePath];
+# pragma mark - Cache
+
+- (NSString *)cachePathForSite:(SocialSite)site username:(NSString *)username host:(NSString *)host create:(BOOL) create {
+  
+  NSString *siteURL = [SocialSiteHelper cacheKeyForSite:site];
+  NSString *safeHost = [[host componentsSeparatedByCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@"-"];
+  return [QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", siteURL], create) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@-%@.xml", safeHost, username]];
 }
 
-- (void)cacheBookmarkData:(NSData *)data forSite:(SocialSite)site username:(NSString *)username {
-  NSString *siteURL = [SocialSiteHelper siteURLForSite:site];
-  NSString *safeURL = [[siteURL componentsSeparatedByCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@"-"];
-    NSString *cachePath = [QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", safeURL], YES) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.xml", username]];
+
+- (NSData *)cachedBookmarkDataForSite:(SocialSite)site username:(NSString *)username host:(NSString *)host {
+  NSString *cachePath = [self cachePathForSite: site username: username host: host create: NO];
+  return [NSData dataWithContentsOfFile:cachePath];
+}
+
+- (void)cacheBookmarkData:(NSData *)data forSite:(SocialSite)site username:(NSString *)username host:(NSString *)host {
+  NSString *cachePath = [self cachePathForSite: site username: username host: host create: YES];
     [data writeToFile:cachePath atomically:NO];
 }
 
 - (NSArray *)fetchBookmarksForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password identifier:(NSString *)identifier host:(NSString *)host includeTags:(BOOL)includeTags {
     
     // Try cached data first
-    NSData *data = [self cachedBookmarkDataForSite:site username:username];
-    
+  NSData *data = [self cachedBookmarkDataForSite:site username:username host:host];
+
     // If no cached data, fetch from API
     if (![data length]) {
         NSURL *requestURL = [self requestURLForSite:site username:username password:password host:host];
@@ -87,7 +94,7 @@
         NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:requestURL
                                                                   cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                               timeoutInterval:60.0];
-        [theRequest setHTTPMethod:@"POST"];
+        [theRequest setHTTPMethod:@"GET"];
         [theRequest setValue:@"text/xml" forHTTPHeaderField:@"Content-type"];
         [theRequest setValue:@"Quicksilver (Blacktree,MacOSX)" forHTTPHeaderField:@"User-Agent"];
         
@@ -100,11 +107,9 @@
         }
         
         // Cache the data
-        [self cacheBookmarkData:data forSite:site username:username];
+      [self cacheBookmarkData:data forSite:site username:username host:host];
     }
   
-  NSLog(@"WE ARE READY TO PARSE");
-    
     // Parse XML data
     NSXMLParser *postParser = [[NSXMLParser alloc] initWithData:data];
     [postParser setDelegate:self];
@@ -112,8 +117,6 @@
     self.posts = [NSMutableArray arrayWithCapacity:1];
     [postParser parse];
   
-  NSLog(@"STILL READY: %ld", [self.posts count]);
-    
     NSMutableArray *objects = [NSMutableArray arrayWithCapacity:1];
     NSMutableSet *tagSet = [NSMutableSet set];
     
@@ -155,7 +158,7 @@
 }
 
 - (NSArray *)fetchBookmarksForTag:(NSString *)tag site:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host {
-    NSData *data = [self cachedBookmarkDataForSite:site username:username];
+  NSData *data = [self cachedBookmarkDataForSite:site username:username host:host];
     if (!data) return @[];
     
     NSXMLParser *postParser = [[NSXMLParser alloc] initWithData:data];

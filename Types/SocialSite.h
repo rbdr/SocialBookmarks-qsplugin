@@ -18,7 +18,7 @@ typedef NS_ENUM(NSInteger, SocialSite) {
 @interface SocialSiteHelper : NSObject
 
 + (NSString *)displayNameForSite:(SocialSite)site;
-+ (NSString *)siteURLForSite:(SocialSite)site;
++ (NSString *)cacheKeyForSite:(SocialSite)site;
 + (BOOL)hasVariableHost:(SocialSite)site;
 
 @end

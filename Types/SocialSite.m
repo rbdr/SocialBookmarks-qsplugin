@@ -24,7 +24,8 @@
     }
 }
 
-+ (NSString *)siteURLForSite:(SocialSite)site {
+// This is used for caching key
++ (NSString *)cacheKeyForSite:(SocialSite)site {
     switch (site) {
         case SocialSiteDelicious:
             return @"del.icio.us";
@@ -33,8 +34,9 @@
         case SocialSitePinboard:
             return @"pinboard.in";
         case SocialSiteSelfHostedDeliciousCompatible:
+        return @"self-hosted-delicious";
         case SocialSiteLinkding:
-            return @""; // Will be provided by user as host
+            return @"linkding";
         default:
             return nil;
     }

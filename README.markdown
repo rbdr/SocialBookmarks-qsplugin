@@ -59,3 +59,13 @@ By downloading and/or using this software you agree to the following terms of us
 
 
 Which basically means: whatever you do, I can't be held accountable if something breaks.
+
+Supported Services
+-----------
+
+This plugin supports Delicious compatible services (eg. Linkhut), and Linkding. It's important to note that delicious compatible systems aren't all compatible in the same way, so you might need to make some adjustments:
+
+
+- For every self-hsoted service, make sure to include the protocol (eg. https://).
+- For delicious compatible items, include everything before `/v1`. So if it's `https://api.ln.ht/v1` you just include `https://api.ln.ht`. But if it's `https://myservice.com/api/v1` then you should include `https://myservice.com/api` with no trailing slash.
+- For delicious compatible items, check what they expect for the `auth_token` field and use that as your password. For example, in pinboard it's `username:token`, while in linkhut it's just `token`.
