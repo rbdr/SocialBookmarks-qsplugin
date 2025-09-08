@@ -80,8 +80,11 @@
       baseURL = [baseURL substringToIndex:[baseURL length] - 1];
     }
 
+    // I'm being lazy with the limit for now. This should instead loop while
+    // there is a next, but then the caching will also need to be changed. If
+    // you have a particularly large linkding library, I apologize.
     NSString *urlString =
-        [NSString stringWithFormat:@"%@/api/bookmarks/", baseURL];
+        [NSString stringWithFormat:@"%@/api/bookmarks/?limit=10000", baseURL];
     NSURL *requestURL = [NSURL URLWithString:urlString];
 
     if (!requestURL) {

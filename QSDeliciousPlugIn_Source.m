@@ -285,14 +285,8 @@
 #pragma mark - Object Handler Methods
 
 - (void)setQuickIconForObject:(QSObject *)object {
-  if (@available(macOS 11.0, *)) {
-    NSImage *image = [NSImage imageWithSystemSymbolName:@"tag"
-                               accessibilityDescription:@"Bookmark"];
-    [object setIcon:image];
-  } else {
-    [object setIcon:[[NSBundle bundleForClass:[self class]]
-                        imageNamed:@"bookmark_icon"]];
-  }
+  [object setIcon:[[NSBundle bundleForClass:[self class]]
+                      imageNamed:@"bookmark_icon"]];
 }
 
 // All our objects will have children. URLs will have tags, and tags will have
