@@ -42,7 +42,7 @@
     [data writeToFile:cachePath atomically:NO];
 }
 
-- (NSArray *)fetchBookmarksForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host includeTags:(BOOL)includeTags {
+- (NSArray *)fetchBookmarksForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password identifier:(NSString *)identifier host:(NSString *)host includeTags:(BOOL)includeTags {
     
     if (![self canHandleSite:site username:username password:password host:host]) {
         return @[];
@@ -69,8 +69,6 @@
             NSLog(@"Invalid Linkding host URL: %@", host);
             return @[];
         }
-      
-      NSLog(@"WE ARE ABOUT TO REQUEST TO URL: %@", requestURL);
       
         NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:requestURL
                                                                   cachePolicy:NSURLRequestUseProtocolCachePolicy
@@ -132,8 +130,11 @@
             if (tag.length > 0) {
                 QSObject *tagObject = [QSObject makeObjectWithIdentifier:[NSString stringWithFormat:@"[Linkding tag]:%@", tag]];
                 [tagObject setObject:tag forType:[self tagURLType]];
-                [tagObject setObject:username forMeta:@"linkding.username"];
-                [tagObject setObject:host forMeta:@"linkding.host"];
+                [tagObject setObject:@(site) forMeta:@"source.site"];
+                [tagObject setObject:username forMeta:@"source.username"];
+                [tagObject setObject:host forMeta:@"source.host"];
+              // We need the identifier to be able to fetch the keychain password
+                [tagObject setObject:identifier forMeta:@"source.identifier"];
                 [tagObject setName:tag];
                 [tagObject setPrimaryType:[self tagURLType]];
                 [objects addObject:tagObject];

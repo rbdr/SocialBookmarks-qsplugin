@@ -70,7 +70,7 @@
     return [NSString stringWithFormat:@"tag.%@", [SocialSiteHelper reversedSiteURLForSite:self.site]];
 }
 
-- (NSArray *)fetchBookmarksForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host includeTags:(BOOL)includeTags {
+- (NSArray *)fetchBookmarksForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password identifier:(NSString *)identifier host:(NSString *)host includeTags:(BOOL)includeTags {
     
     // Try cached data first
     NSData *data = [self cachedBookmarkDataForSite:site username:username];
@@ -131,7 +131,10 @@
             if (tag.length > 0) {
                 QSObject *tagObject = [QSObject makeObjectWithIdentifier:[NSString stringWithFormat:@"[%@ tag]:%@", [self providerName], tag]];
                 [tagObject setObject:tag forType:[self tagURLType]];
-                [tagObject setObject:username forMeta:[NSString stringWithFormat:@"%@.username", [SocialSiteHelper reversedSiteURLForSite:site]]];
+              [tagObject setObject:@(site) forMeta:@"source.site"];
+              [tagObject setObject:username forMeta:@"source.username"];
+              [tagObject setObject:host forMeta:@"source.host"];
+              [tagObject setObject:identifier forMeta:@"source.identifier"];
                 [tagObject setName:tag];
                 [tagObject setPrimaryType:[self tagURLType]];
                 [objects addObject:tagObject];

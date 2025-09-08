@@ -144,7 +144,7 @@
                     </secureTextFieldCell>
                     <connections>
                         <action selector="settingsChanged:" target="-2" id="mWc-uc-BZi"/>
-                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.password" id="iVD-TC-GTV"/>
+                        <binding destination="-2" name="value" keyPath="password" id="lx1-bz-oz5"/>
                     </connections>
                 </secureTextField>
                 <textField focusRingType="none" verticalHuggingPriority="750" id="host-text-field">

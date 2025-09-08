@@ -9,8 +9,20 @@
 #import "QSDeliciousPlugIn_Source.h"
 #import <QSCore/QSCore.h>
 #import <Security/Security.h>
+#import <os/log.h>
 
 @implementation QSDeliciousPlugIn_Source
+
+#pragma mark - Lifecycle
+
+// This method will get called whenever we change which
+// active entry is selected.
+- (void)setSelectedEntry:(id)selectedEntry {
+    [super setSelectedEntry:selectedEntry];
+    [self loadPasswordFromKeychain];
+}
+
+#pragma mark - Quicksilver Source Methods
 
 - (BOOL)indexIsValidFromDate:(NSDate *)indexDate forEntry:(NSDictionary *)theEntry {
   return -[indexDate timeIntervalSinceNow] < 24 * 60 * 60;
@@ -48,7 +60,7 @@
 }
 
 - (NSString *)currentPassword {
-  return [self.selectedEntry.sourceSettings objectForKey:@"password"];
+  return self.internalPassword;
 }
 
 - (BOOL)includeTags {
@@ -56,174 +68,159 @@
 }
 
 
+// This method is called on action from all the NIB methods
+// to force the catalog to save the current values.
 - (IBAction)settingsChanged:(id)sender {
   [[NSNotificationCenter defaultCenter] postNotificationName:QSCatalogEntryChangedNotification object:self.selectedEntry];
 }
 
-#pragma mark - Keychain Access
 
-- (SecProtocolType)protocolTypeForString:(NSString *)protocol {
-  if ([protocol isEqualToString:@"ftp"]) return kSecProtocolTypeFTP;
-  else if ([protocol isEqualToString:@"http"]) return kSecProtocolTypeHTTP;
-  else if ([protocol isEqualToString:@"sftp"]) return kSecProtocolTypeFTPS;
-  else if ([protocol isEqualToString:@"eppc"]) return kSecProtocolTypeEPPC;
-  else if ([protocol isEqualToString:@"afp"]) return kSecProtocolTypeAFP;
-  else if ([protocol isEqualToString:@"smb"]) return kSecProtocolTypeSMB;
-  else if ([protocol isEqualToString:@"ssh"]) return kSecProtocolTypeSSH;
-  else if ([protocol isEqualToString:@"telnet"]) return kSecProtocolTypeTelnet;
-  return 0;
+#pragma mark - Keychain Helper Methods
+
+- (NSString *)keychainKeyForIdentifier:(NSString *)identifier {
+    return [NSString stringWithFormat:@"QSSocialBookmarks-%@", identifier];
 }
 
-- (NSString *)passwordForHost:(NSString *)host user:(NSString *)user andType:(SecProtocolType)type {
-  const char     *buffer;
-  UInt32       length = 0;
-  OSErr      err;
-  
-  err = SecKeychainFindInternetPassword(NULL,
-                      (UInt32)[host length], [host UTF8String],
-                      0,
-                      NULL,
-                      (UInt32)[user length], [user UTF8String],
-                      0, NULL,
-                      0,
-                      type,
-                      0,
-                      &length, (void**)&buffer,
-                      NULL);
-  
-  if (err == noErr) {
-    NSString *password = [NSString stringWithUTF8String:buffer];
-    SecKeychainItemFreeContent(NULL,(void *)buffer);
-    return password;
-  }
-  return nil;
+- (NSString *)passwordFromKeychainForKey:(NSString *)key {
+    const char *service = "QSSocialBookmarks";
+    const char *account = [key UTF8String];
+    
+    UInt32 passwordLength = 0;
+    void *passwordData = NULL;
+    
+    OSStatus status = SecKeychainFindGenericPassword(NULL,
+                                                   (UInt32)strlen(service), service,
+                                                   (UInt32)strlen(account), account,
+                                                   &passwordLength, &passwordData,
+                                                   NULL);
+    
+    if (status == errSecSuccess && passwordData != NULL) {
+        NSString *password = [[NSString alloc] initWithBytes:passwordData
+                                                      length:passwordLength
+                                                    encoding:NSUTF8StringEncoding];
+        SecKeychainItemFreeContent(NULL, passwordData);
+        return password;
+    }
+    
+    return nil;
 }
 
-- (NSString *)passwordForHost:(NSString *)host user:(NSString *)user andScheme:(NSString *)scheme {
-  NSString *password = nil;
-  
-  SecProtocolType type = [self protocolTypeForString:scheme];
-  
-  password = [self passwordForHost:host user:user andType:type];
-  
-  if (!password && type == kSecProtocolTypeFTP)
-    password = [self passwordForHost:host user:user andType:kSecProtocolTypeFTPAccount]; // Workaround for Transmit's old type usage
-  if ( !password )
-    password = [self passwordForHost:host user:user andType:0];
-  if ( !password )
-    NSLog(@"Couldn't find password. URL:%@ %@ %@", host, user,scheme );
-  return password;
-}
-
-- (NSString *)keychainPasswordForURL:(NSURL *)url {
-  return [self passwordForHost:[url host] user:[url user] andScheme:[url scheme]];
-}
-
-- (OSErr)addURLPasswordToKeychain:(NSURL *)url {
-  OSErr      err;
-  
-  NSString *host = [url host];
-  NSString *user = [url user];
-  NSString *pass = [url password];
-  
-  SecProtocolType type = [self protocolTypeForString:[url scheme]];
-  
-  SecKeychainItemRef existing = NULL;
-  
-  err = SecKeychainFindInternetPassword(NULL,
-                      (UInt32)[host length], [host UTF8String],
-                      0, NULL,
-                      (UInt32)[user length], [user UTF8String],
-                      0, NULL,
-                      0,
-                      type,
-                      0,
-                      NULL,NULL,
-                      &existing);
-  
-  if ( !err ) {
-    err = SecKeychainItemModifyContent( existing, NULL, (UInt32)[pass length], [pass UTF8String] );
-    CFRelease( existing );
-  } else {
-    err = SecKeychainAddInternetPassword(NULL,
-                                             (UInt32)[host length], [host UTF8String],
-                                             0, NULL,
-                                             (UInt32)[user length], [user UTF8String],
-                                             0, NULL,
-                                             0,
-                                             type,
-                                             0,
-                                             (UInt32)[pass length], [pass UTF8String],
+- (OSStatus)savePasswordToKeychainForKey:(NSString *)key password:(NSString *)password {
+    const char *service = "QSSocialBookmarks";
+    const char *account = [key UTF8String];
+    const char *passwordCString = [password UTF8String];
+    
+    // First try to find existing item
+    SecKeychainItemRef item = NULL;
+    OSStatus findStatus = SecKeychainFindGenericPassword(NULL,
+                                                       (UInt32)strlen(service), service,
+                                                       (UInt32)strlen(account), account,
+                                                       NULL, NULL,
+                                                       &item);
+    
+    OSStatus status;
+    if (findStatus == errSecSuccess) {
+        // Update existing item
+        status = SecKeychainItemModifyAttributesAndData(item,
+                                                      NULL,
+                                                      (UInt32)strlen(passwordCString),
+                                                      passwordCString);
+        CFRelease(item);
+    } else {
+        // Create new item
+        status = SecKeychainAddGenericPassword(NULL,
+                                             (UInt32)strlen(service), service,
+                                             (UInt32)strlen(account), account,
+                                             (UInt32)strlen(passwordCString), passwordCString,
                                              NULL);
     }
-  
-  return err;
+    
+    return status;
 }
 
-- (NSString *)oldCurrentPassword {
-  NSString *account = [self currentUsername];
-  if (!account) return nil;
-  
-    SocialSite site = [self siteIndex];
-    NSString *host = nil;
+- (OSStatus)deletePasswordFromKeychainForKey:(NSString *)key {
+    const char *service = "QSSocialBookmarks";
+    const char *account = [key UTF8String];
     
-    // For Linkding, use the custom host; for others, use the standard site URL
-    if (site == SocialSiteLinkding) {
-        host = [self currentHost];
-        if (!host) return nil;
-    } else {
-        host = [SocialSiteHelper siteURLForSite:site];
+    SecKeychainItemRef item = NULL;
+    OSStatus findStatus = SecKeychainFindGenericPassword(NULL,
+                                                       (UInt32)strlen(service), service,
+                                                       (UInt32)strlen(account), account,
+                                                       NULL, NULL,
+                                                       &item);
+    
+    if (findStatus == errSecSuccess) {
+        OSStatus deleteStatus = SecKeychainItemDelete(item);
+        CFRelease(item);
+        return deleteStatus;
     }
-  
-  NSURL *keychainURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@@%@/", account, host]];
-  NSString *password = [self keychainPasswordForURL:keychainURL];
-  
-  return password;
+    
+    return findStatus;
 }
 
-- (void)setCurrentPassword:(NSString *)newPassword {
-  NSString *account = [self currentUsername];
-  if (!account) return;
-  if ([newPassword length] <= 0) return;
-  
-    SocialSite site = [self siteIndex];
-    NSString *host = nil;
-    
-    // For Linkding, use the custom host; for others, use the standard site URL
-    if (site == SocialSiteLinkding) {
-        host = [self currentHost];
-        if (!host) return;
-    } else {
-        host = [SocialSiteHelper siteURLForSite:site];
+#pragma mark - Password Keychain Methods
+
+- (void)loadPasswordFromKeychain {
+    if (!self.selectedEntry || !self.selectedEntry.identifier) {
+        self.internalPassword = nil;
+        return;
     }
-  
-  NSURL *keychainURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%@@%@/", account, newPassword, host]];
-  
-  [self addURLPasswordToKeychain:keychainURL];
+    
+    NSString *keychainKey = [self keychainKeyForIdentifier:self.selectedEntry.identifier];
+    [self setPassword: [self passwordFromKeychainForKey:keychainKey]];
+}
+
+- (void)savePasswordToKeychain {
+    if (!self.selectedEntry || !self.selectedEntry.identifier || !self.internalPassword) {
+        return;
+    }
+    
+    NSString *keychainKey = [self keychainKeyForIdentifier:self.selectedEntry.identifier];
+    OSStatus status = [self savePasswordToKeychainForKey:keychainKey password:self.internalPassword];
+    
+    if (status != errSecSuccess) {
+        NSLog(@"Failed to save password to keychain for key: %@, status: %d", keychainKey, (int)status);
+    }
+}
+
+#pragma mark - Password Property Accessors
+
+- (NSString *)password {
+    return self.internalPassword;
+}
+
+- (void)setPassword:(NSString *)password {
+    self.internalPassword = password;
+    
+    // Save to keychain asynchronously
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self savePasswordToKeychain];
+    });
 }
 
 #pragma mark - Objects For Entry
 
-- (NSArray *)objectsForEntry:(NSDictionary *)theEntry {
-  NSLog(@"WE HAVE BEEN REQUESTED");
+- (NSArray *)objectsForEntry:(QSCatalogEntry *)theEntry {
   
-    SocialSite site = [self siteIndex];
-    NSString *username = [self currentUsername];
-    NSString *password = [self currentPassword];
-    NSString *host = [self currentHost];
-    BOOL includeTags = [self includeTags];
+    NSDictionary *settings = theEntry.sourceSettings;
+  
+    SocialSite site = [settings objectForKey:@"site"] != nil ? [[settings objectForKey:@"site"] integerValue] : SocialSiteDelicious;
+    NSString *username = [settings objectForKey:@"username"];
+    NSString *identifier = theEntry.identifier;
+    NSString *keychainKey = [self keychainKeyForIdentifier:identifier];
+    NSString *password = [self passwordFromKeychainForKey:keychainKey];
+    NSString *host = [settings objectForKey:@"host"];
+    BOOL includeTags = [settings objectForKey:@"includeTags"];
     
-    // Get the appropriate provider using the factory
     QSBookmarkProviderFactory *factory = [QSBookmarkProviderFactory sharedFactory];
     id<QSBookmarkProvider> provider = [factory providerForSite:site username:username password:password host:host];
     
-  NSLog(@"Checking for %ld, user %@, pass %@, host %@", (long)site, username, password, host);
     if (!provider) {
         NSLog(@"No provider available for site %ld with username %@", (long)site, username);
         return @[];
     }
     
-    return [provider fetchBookmarksForSite:site username:username password:password host:host includeTags:includeTags];
+  return [provider fetchBookmarksForSite:site username:username password:password identifier:identifier host:host includeTags:includeTags];
 }
 
 - (NSArray *)objectsForTag:(NSString *)tag username:(NSString *)username {
@@ -254,10 +251,37 @@
   [object setIcon:[[NSBundle bundleForClass:[self class]]imageNamed:@"bookmark_icon"]];
 }
 
+// This will receive a tag object. Tag objects will have the
+// source configuration in the meta: source.username,
+// source.site, source.host and source.identifier.
 - (BOOL)loadChildrenForObject:(QSObject *)object {
-    SocialSite site = [self siteIndex];
-    
-    NSString *tagType = nil;
+  
+  NSNumber *siteNumber = [object objectForMeta:@"source.site"];
+  if (!siteNumber) {
+    NSLog(@"The tag didn't have a valid site.");
+    return NO;
+  }
+  
+  SocialSite site = [siteNumber integerValue];
+  
+  NSString *username = [object objectForMeta:@"source.username"];
+  if (!username) {
+    NSLog(@"The tag didn't have a valid username.");
+    return NO;
+  }
+  NSString *identifier = [object objectForMeta:@"source.identifier"];
+  if (!identifier) {
+    NSLog(@"The tag didn't have a valid identifier.");
+    return NO;
+  }
+
+  NSString *host = [object objectForMeta:@"source.host"];
+  if (site == SocialSiteLinkding && !host) {
+    NSLog(@"The tag didn't have a host, and its site requires it.");
+    return NO;
+  }
+
+  NSString *tagType = nil;
     if (site == SocialSiteLinkding) {
         tagType = @"tag.linkding";
     } else {
@@ -265,18 +289,11 @@
         tagType = [NSString stringWithFormat:@"tag.%@", reversedURL];
     }
     
-    NSString *tag = [object objectForType:tagType];
-    if (!tag) return NO;
-    
-    NSString *username = nil;
-    if (site == SocialSiteLinkding) {
-        username = [object objectForMeta:@"linkding.username"];
-    } else {
-        NSString *reversedURL = [SocialSiteHelper reversedSiteURLForSite:site];
-        username = [object objectForMeta:[NSString stringWithFormat:@"%@.username", reversedURL]];
-    }
-    
-    if (!username) return NO;
+  NSString *tag = [object objectForType:tagType];
+  if (!tag) {
+    NSLog(@"We could not find a valid tag type.");
+    return NO;
+  }
     
     NSArray *children = [self objectsForTag:tag username:username];
     [object setChildren:children];

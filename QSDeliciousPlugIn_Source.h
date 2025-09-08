@@ -17,6 +17,7 @@
   IBOutlet NSTextField *passField;
   IBOutlet NSTextField *hostField;
 }
+@property (nonatomic, strong) NSString *internalPassword;
 
 - (IBAction)settingsChanged:(id)sender;
 @end
