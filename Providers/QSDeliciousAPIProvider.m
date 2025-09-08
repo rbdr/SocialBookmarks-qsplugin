@@ -5,52 +5,59 @@
 
 #import "QSDeliciousAPIProvider.h"
 #import "SocialSite.h"
+#import "Constants.h"
 #import <QSCore/QSCore.h>
 
 @implementation QSDeliciousAPIProvider
 
-- (instancetype)initWithSite:(SocialSite)site {
-    self = [super init];
-    if (self) {
-        _site = site;
-        _posts = [NSMutableArray array];
-    }
-    return self;
-}
-
 - (BOOL)canHandleSite:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host {
-    return (site == self.site) && 
-           username.length > 0 && 
+    return (
+              site == SocialSiteDelicious ||
+              site == SocialSiteMagnolia ||
+              site == SocialSitePinboard ||
+              site == SocialSiteSelfHostedDeliciousCompatible
+            ) &&
+           username.length > 0 &&
            password.length > 0 &&
-           (site != SocialSiteLinkding); // This provider doesn't handle Linkding
+           (site != SocialSiteSelfHostedDeliciousCompatible || host.length > 0);
 }
 
-- (SocialSite)supportedSite {
-    return self.site;
-}
-
-- (NSString *)providerName {
-    return [SocialSiteHelper displayNameForSite:self.site];
-}
-
-- (NSString *)apiURLForSite:(SocialSite)site {
+- (NSString *)apiURLForSite:(SocialSite)site andHost:(NSString *)host {
     switch (site) {
         case SocialSiteDelicious:
             return @"api.del.icio.us/v1";
         case SocialSiteMagnolia:
             return @"ma.gnolia.com/api/mirrord/v1";
         case SocialSitePinboard:
-            return @"api.pinboard.in/v1";
+            return @"https://api.pinboard.in/v1";
+        case SocialSiteSelfHostedDeliciousCompatible:
+            return [NSString stringWithFormat:@"%@/v1", host];
         default:
             return nil;
     }
 }
+- (BOOL)usesAuthToken:(SocialSite)site {
+    switch (site) {
+        case SocialSitePinboard:
+        case SocialSiteSelfHostedDeliciousCompatible:
+          return YES;
+        default:
+          return NO;
+    }
+}
 
 - (NSURL *)requestURLForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host {
-    NSString *apiURL = [self apiURLForSite:site];
+  NSString *apiURL = [self apiURLForSite:site andHost: host];
     if (!apiURL) return nil;
-    
-    NSString *urlString = [NSString stringWithFormat:@"https://%@:%@@%@/posts/all?", username, password, apiURL];
+  
+  NSString *urlString;
+  if ([self usesAuthToken:site]) {
+    // Pinboard and pinboard compatible sites require an
+    // auth token rather than a password.
+    urlString = [NSString stringWithFormat:@"%@/posts/all?auth_token=%@:%@", apiURL, username, password];
+  } else {
+    urlString = [NSString stringWithFormat:@"https://%@:%@@%@/posts/all?", username, password, apiURL];
+  }
     return [NSURL URLWithString:urlString];
 }
 
@@ -61,13 +68,10 @@
 }
 
 - (void)cacheBookmarkData:(NSData *)data forSite:(SocialSite)site username:(NSString *)username {
-    NSString *siteURL = [SocialSiteHelper siteURLForSite:site];
-    NSString *cachePath = [QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", siteURL], YES) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.xml", username]];
+  NSString *siteURL = [SocialSiteHelper siteURLForSite:site];
+  NSString *safeURL = [[siteURL componentsSeparatedByCharactersInSet:[[NSCharacterSet alphanumericCharacterSet] invertedSet]] componentsJoinedByString:@"-"];
+    NSString *cachePath = [QSApplicationSupportSubPath([NSString stringWithFormat:@"Caches/%@/", safeURL], YES) stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.xml", username]];
     [data writeToFile:cachePath atomically:NO];
-}
-
-- (NSString *)tagURLType {
-    return [NSString stringWithFormat:@"tag.%@", [SocialSiteHelper reversedSiteURLForSite:self.site]];
 }
 
 - (NSArray *)fetchBookmarksForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password identifier:(NSString *)identifier host:(NSString *)host includeTags:(BOOL)includeTags {
@@ -79,7 +83,7 @@
     if (![data length]) {
         NSURL *requestURL = [self requestURLForSite:site username:username password:password host:host];
         if (!requestURL) return @[];
-        
+      
         NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:requestURL
                                                                   cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                               timeoutInterval:60.0];
@@ -87,7 +91,7 @@
         [theRequest setValue:@"text/xml" forHTTPHeaderField:@"Content-type"];
         [theRequest setValue:@"Quicksilver (Blacktree,MacOSX)" forHTTPHeaderField:@"User-Agent"];
         
-        NSError *error;
+        NSError *error = nil;
         data = [NSURLConnection sendSynchronousRequest:theRequest returningResponse:nil error:&error];
         
         if (error) {
@@ -98,6 +102,8 @@
         // Cache the data
         [self cacheBookmarkData:data forSite:site username:username];
     }
+  
+  NSLog(@"WE ARE READY TO PARSE");
     
     // Parse XML data
     NSXMLParser *postParser = [[NSXMLParser alloc] initWithData:data];
@@ -105,6 +111,8 @@
     
     self.posts = [NSMutableArray arrayWithCapacity:1];
     [postParser parse];
+  
+  NSLog(@"STILL READY: %ld", [self.posts count]);
     
     NSMutableArray *objects = [NSMutableArray arrayWithCapacity:1];
     NSMutableSet *tagSet = [NSMutableSet set];
@@ -129,15 +137,16 @@
     if (includeTags) {
         for (NSString *tag in tagSet) {
             if (tag.length > 0) {
-                QSObject *tagObject = [QSObject makeObjectWithIdentifier:[NSString stringWithFormat:@"[%@ tag]:%@", [self providerName], tag]];
-                [tagObject setObject:tag forType:[self tagURLType]];
-              [tagObject setObject:@(site) forMeta:@"source.site"];
-              [tagObject setObject:username forMeta:@"source.username"];
-              [tagObject setObject:host forMeta:@"source.host"];
-              [tagObject setObject:identifier forMeta:@"source.identifier"];
-                [tagObject setName:tag];
-                [tagObject setPrimaryType:[self tagURLType]];
-                [objects addObject:tagObject];
+              QSObject *tagObject = [QSObject makeObjectWithIdentifier:[NSString stringWithFormat:@"[%@ tag]:%@", [SocialSiteHelper displayNameForSite:site], tag]];
+
+              [tagObject setObject:tag forType:kTagType];
+              [tagObject setObject:@(site) forMeta:kTagSiteField];
+              [tagObject setObject:username forMeta:kTagUsernameField];
+              [tagObject setObject:host forMeta:kTagHostField];
+              [tagObject setObject:identifier forMeta:kTagIdentifierField];
+              [tagObject setName:tag];
+              [tagObject setPrimaryType:kTagType];
+              [objects addObject:tagObject];
             }
         }
     }

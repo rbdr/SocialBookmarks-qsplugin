@@ -7,9 +7,9 @@
 //
 
 #import "QSDeliciousPlugIn_Source.h"
+#import "Constants.h"
 #import <QSCore/QSCore.h>
 #import <Security/Security.h>
-#import <os/log.h>
 
 @implementation QSDeliciousPlugIn_Source
 
@@ -72,6 +72,8 @@
 // to force the catalog to save the current values.
 - (IBAction)settingsChanged:(id)sender {
   [[NSNotificationCenter defaultCenter] postNotificationName:QSCatalogEntryChangedNotification object:self.selectedEntry];
+  [self willChangeValueForKey:@"isHostVisible"];
+  [self didChangeValueForKey:@"isHostVisible"];
 }
 
 
@@ -198,6 +200,12 @@
     });
 }
 
+#pragma mark - Host Visibility Control
+- (BOOL) isHostVisible {
+    return [SocialSiteHelper hasVariableHost:[self siteIndex]];
+}
+- (void)setIsHostVisible:(BOOL)isVisible { }
+
 #pragma mark - Objects For Entry
 
 - (NSArray *)objectsForEntry:(QSCatalogEntry *)theEntry {
@@ -219,23 +227,22 @@
         NSLog(@"No provider available for site %ld with username %@", (long)site, username);
         return @[];
     }
-    
+  
   return [provider fetchBookmarksForSite:site username:username password:password identifier:identifier host:host includeTags:includeTags];
 }
 
-- (NSArray *)objectsForTag:(NSString *)tag username:(NSString *)username {
-    SocialSite site = [self siteIndex];
-    NSString *password = [self currentPassword];
-    NSString *host = [self currentHost];
+- (NSArray *)objectsForTag:(NSString *)tag site:(SocialSite)site username:(NSString *)username identifier:(NSString *)identifier host:(NSString *)host {
+  
+  NSString *keychainKey = [self keychainKeyForIdentifier:identifier];
+  NSString *password = [self passwordFromKeychainForKey:keychainKey];
+
+  QSBookmarkProviderFactory *factory = [QSBookmarkProviderFactory sharedFactory];
+  id<QSBookmarkProvider> provider = [factory providerForSite:site username:username password:password host:host];
     
-    // Get the appropriate provider using the factory
-    QSBookmarkProviderFactory *factory = [QSBookmarkProviderFactory sharedFactory];
-    id<QSBookmarkProvider> provider = [factory providerForSite:site username:username password:password host:host];
-    
-    if (!provider) {
-        NSLog(@"No provider available for site %ld with username %@", (long)site, username);
-        return @[];
-    }
+  if (!provider) {
+    NSLog(@"No provider available for site %ld with username %@", (long)site, username);
+    return @[];
+  }
     
     // Check if provider supports tag-based fetching
     if ([provider respondsToSelector:@selector(fetchBookmarksForTag:site:username:password:host:)]) {
@@ -248,8 +255,16 @@
 #pragma mark - Object Handler Methods
 
 - (void)setQuickIconForObject:(QSObject *)object {
-  [object setIcon:[[NSBundle bundleForClass:[self class]]imageNamed:@"bookmark_icon"]];
+  if (@available(macOS 11.0, *)) {
+    NSImage *image = [NSImage imageWithSystemSymbolName:@"tag" accessibilityDescription:@"Bookmark"];
+    [object setIcon:image];
+  } else {
+    [object setIcon:[[NSBundle bundleForClass:[self class]]imageNamed:@"bookmark_icon"]];
+  }
 }
+
+// All our objects will have children. URLs will have tags, and tags will have URLs.
+- (BOOL)objectHasChildren:(QSObject *) object { return YES; }
 
 // This will receive a tag object. Tag objects will have the
 // source configuration in the meta: source.username,
@@ -281,21 +296,13 @@
     return NO;
   }
 
-  NSString *tagType = nil;
-    if (site == SocialSiteLinkding) {
-        tagType = @"tag.linkding";
-    } else {
-        NSString *reversedURL = [SocialSiteHelper reversedSiteURLForSite:site];
-        tagType = [NSString stringWithFormat:@"tag.%@", reversedURL];
-    }
-    
-  NSString *tag = [object objectForType:tagType];
+  NSString *tag = [object objectForType:kTagType];
   if (!tag) {
     NSLog(@"We could not find a valid tag type.");
     return NO;
   }
-    
-    NSArray *children = [self objectsForTag:tag username:username];
+
+  NSArray *children = [self objectsForTag:tag site:site username:username identifier:identifier host:host];
     [object setChildren:children];
     return YES;
 }

@@ -42,7 +42,7 @@
 		</dict>
 		<key>QSObjectHandlers</key>
 		<dict>
-			<key>us.icio.del.tag</key>
+			<key>qs.tag.socialbookmark</key>
 			<string>QSDeliciousPlugIn_Source</string>
 		</dict>
 		<key>QSObjectSources</key>

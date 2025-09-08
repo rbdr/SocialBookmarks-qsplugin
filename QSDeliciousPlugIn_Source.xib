@@ -33,7 +33,7 @@
                     </textFieldCell>
                 </textField>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="username-label">
-                    <rect key="frame" x="18" y="179" width="70" height="16"/>
+                    <rect key="frame" x="18" y="147" width="70" height="16"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="16" id="y8T-Rp-nV6"/>
@@ -45,7 +45,7 @@
                     </textFieldCell>
                 </textField>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="password-label">
-                    <rect key="frame" x="22" y="140" width="66" height="16"/>
+                    <rect key="frame" x="22" y="108" width="66" height="16"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="16" id="BpN-ax-hN6"/>
@@ -57,7 +57,7 @@
                     </textFieldCell>
                 </textField>
                 <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="host-label">
-                    <rect key="frame" x="51" y="101" width="37" height="16"/>
+                    <rect key="frame" x="51" y="69" width="37" height="16"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="16" id="SmD-SH-xQe"/>
@@ -67,31 +67,14 @@
                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
-                </textField>
-                <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" id="host-help-label">
-                    <rect key="frame" x="94" y="75" width="137" height="14"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Required for Linkding" id="host-help-label-cell">
-                        <font key="font" metaFont="smallSystem"/>
-                        <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                </textField>
-                <button id="include-tags-checkbox">
-                    <rect key="frame" x="96" y="52" width="99" height="16"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="check" title="Include Tags" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="include-tags-checkbox-cell">
-                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                        <font key="font" metaFont="system"/>
-                    </buttonCell>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="16" id="egr-kg-1on"/>
-                    </constraints>
                     <connections>
-                        <action selector="settingsChanged:" target="-2" id="BfD-Jh-b7j"/>
-                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.includeTags" id="lGp-jw-qTE"/>
+                        <binding destination="-2" name="hidden" keyPath="isHostVisible" id="IaX-Z5-bel">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
                     </connections>
-                </button>
+                </textField>
                 <popUpButton verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="site-popup">
                     <rect key="frame" x="96" y="214" width="133" height="24"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -103,7 +86,8 @@
                                 <menuItem title="del.icio.us" state="on" id="site-delicious"/>
                                 <menuItem title="ma.gnolia.com" tag="1" id="site-magnolia"/>
                                 <menuItem title="Pinboard" tag="2" id="site-pinboard"/>
-                                <menuItem title="Linkding" tag="3" id="site-linkding"/>
+                                <menuItem title="Linkding" tag="3" id="NKh-uv-BH6"/>
+                                <menuItem title="Self-Hosted (Delicious API)" tag="4" id="site-linkding"/>
                             </items>
                         </menu>
                     </popUpButtonCell>
@@ -113,7 +97,7 @@
                     </connections>
                 </popUpButton>
                 <textField focusRingType="none" verticalHuggingPriority="750" id="username-text-field">
-                    <rect key="frame" x="96" y="175" width="133" height="24"/>
+                    <rect key="frame" x="96" y="143" width="133" height="24"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="24" id="fas-E9-Pf6"/>
@@ -129,7 +113,7 @@
                     </connections>
                 </textField>
                 <secureTextField focusRingType="none" verticalHuggingPriority="750" id="password-text-field">
-                    <rect key="frame" x="96" y="136" width="133" height="24"/>
+                    <rect key="frame" x="96" y="104" width="133" height="24"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="24" id="dQF-Rc-KB8"/>
@@ -148,7 +132,7 @@
                     </connections>
                 </secureTextField>
                 <textField focusRingType="none" verticalHuggingPriority="750" id="host-text-field">
-                    <rect key="frame" x="96" y="97" width="133" height="24"/>
+                    <rect key="frame" x="96" y="65" width="133" height="24"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="24" id="bfW-V3-8A5"/>
@@ -160,9 +144,29 @@
                     </textFieldCell>
                     <connections>
                         <action selector="settingsChanged:" target="-2" id="4GR-6l-ZnG"/>
+                        <binding destination="-2" name="hidden" keyPath="isHostVisible" id="0Uj-hV-LYQ">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
                         <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.host" id="7qk-HC-e8v"/>
                     </connections>
                 </textField>
+                <button id="include-tags-checkbox">
+                    <rect key="frame" x="96" y="183" width="99" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="check" title="Include Tags" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="include-tags-checkbox-cell">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="egr-kg-1on"/>
+                    </constraints>
+                    <connections>
+                        <action selector="settingsChanged:" target="-2" id="BfD-Jh-b7j"/>
+                        <binding destination="-2" name="value" keyPath="selectedEntry.sourceSettings.includeTags" id="lGp-jw-qTE"/>
+                    </connections>
+                </button>
             </subviews>
             <point key="canvasLocation" x="155.5" y="180"/>
         </customView>

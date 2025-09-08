@@ -5,6 +5,7 @@
 
 #import "QSLinkdingProvider.h"
 #import "SocialSite.h"
+#import "Constants.h"
 #import <QSCore/QSCore.h>
 
 @implementation QSLinkdingProvider
@@ -14,18 +15,6 @@
            username.length > 0 && 
            password.length > 0 && // password is API token for Linkding
            host.length > 0;
-}
-
-- (SocialSite)supportedSite {
-    return SocialSiteLinkding;
-}
-
-- (NSString *)providerName {
-    return @"Linkding";
-}
-
-- (NSString *)tagURLType {
-    return @"tag.linkding";
 }
 
 - (NSData *)cachedBookmarkDataForHost:(NSString *)host username:(NSString *)username {
@@ -129,14 +118,14 @@
         for (NSString *tag in tagSet) {
             if (tag.length > 0) {
                 QSObject *tagObject = [QSObject makeObjectWithIdentifier:[NSString stringWithFormat:@"[Linkding tag]:%@", tag]];
-                [tagObject setObject:tag forType:[self tagURLType]];
-                [tagObject setObject:@(site) forMeta:@"source.site"];
-                [tagObject setObject:username forMeta:@"source.username"];
-                [tagObject setObject:host forMeta:@"source.host"];
+                [tagObject setObject:tag forType:kTagType];
+                [tagObject setObject:@(site) forMeta:kTagSiteField];
+                [tagObject setObject:username forMeta:kTagUsernameField];
+                [tagObject setObject:host forMeta:kTagHostField];
               // We need the identifier to be able to fetch the keychain password
-                [tagObject setObject:identifier forMeta:@"source.identifier"];
+                [tagObject setObject:identifier forMeta:kTagIdentifierField];
                 [tagObject setName:tag];
-                [tagObject setPrimaryType:[self tagURLType]];
+                [tagObject setPrimaryType:kTagType];
                 [objects addObject:tagObject];
             }
         }

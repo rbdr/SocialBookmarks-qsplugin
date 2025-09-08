@@ -12,12 +12,9 @@
 @interface QSDeliciousAPIProvider : NSObject <QSBookmarkProvider, NSXMLParserDelegate>
 
 @property (nonatomic, strong) NSMutableArray *posts;
-@property (nonatomic, assign) SocialSite site;
-
-- (instancetype)initWithSite:(SocialSite)site;
 
 // Subclasses can override these methods
-- (NSString *)apiURLForSite:(SocialSite)site;
+- (NSString *)apiURLForSite:(SocialSite)site andHost:(NSString *)host;
 - (NSURL *)requestURLForSite:(SocialSite)site username:(NSString *)username password:(NSString *)password host:(NSString *)host;
 - (NSData *)cachedBookmarkDataForSite:(SocialSite)site username:(NSString *)username;
 - (void)cacheBookmarkData:(NSData *)data forSite:(SocialSite)site username:(NSString *)username;

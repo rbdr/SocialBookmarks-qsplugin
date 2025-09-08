@@ -17,6 +17,8 @@
             return @"Pinboard";
         case SocialSiteLinkding:
             return @"Linkding";
+        case SocialSiteSelfHostedDeliciousCompatible:
+          return @"Self-Hosted (Delicious Compatible)";
         default:
             return @"Unknown";
     }
@@ -30,6 +32,7 @@
             return @"ma.gnolia.com";
         case SocialSitePinboard:
             return @"pinboard.in";
+        case SocialSiteSelfHostedDeliciousCompatible:
         case SocialSiteLinkding:
             return @""; // Will be provided by user as host
         default:
@@ -37,18 +40,13 @@
     }
 }
 
-+ (NSString *)reversedSiteURLForSite:(SocialSite)site {
++ (BOOL)hasVariableHost:(SocialSite)site {
     switch (site) {
-        case SocialSiteDelicious:
-            return @"us.icio.del";
-        case SocialSiteMagnolia:
-            return @"com.gnolia.ma";
-        case SocialSitePinboard:
-            return @"in.pinboard";
-        case SocialSiteLinkding:
-            return @"linkding"; // Generic identifier
-        default:
-            return nil;
+      case SocialSiteSelfHostedDeliciousCompatible:
+      case SocialSiteLinkding:
+        return YES;
+      default:
+        return NO;
     }
 }
 

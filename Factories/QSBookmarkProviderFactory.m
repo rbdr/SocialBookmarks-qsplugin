@@ -34,17 +34,13 @@
 - (void)setupProviders {
     NSMutableArray *mutableProviders = [NSMutableArray array];
     
-    // Create Pinboard API providers for each supported site
-    QSDeliciousAPIProvider *deliciousProvider = [[QSDeliciousAPIProvider alloc] initWithSite:SocialSiteDelicious];
-    QSDeliciousAPIProvider *magnoliaProvider = [[QSDeliciousAPIProvider alloc] initWithSite:SocialSiteMagnolia];
-    QSDeliciousAPIProvider *pinboardProvider = [[QSDeliciousAPIProvider alloc] initWithSite:SocialSitePinboard];
+    // Create Delicious / Pinboard API providers for each supported site
+    QSDeliciousAPIProvider *deliciousAPIProvider = [[QSDeliciousAPIProvider alloc] init];
     
     // Create Linkding provider
     QSLinkdingProvider *linkdingProvider = [[QSLinkdingProvider alloc] init];
     
-    [mutableProviders addObject:deliciousProvider];
-    [mutableProviders addObject:magnoliaProvider];
-    [mutableProviders addObject:pinboardProvider];
+    [mutableProviders addObject:deliciousAPIProvider];
     [mutableProviders addObject:linkdingProvider];
     
     self.providers = [mutableProviders copy];
