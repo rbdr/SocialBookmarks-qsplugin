@@ -6,18 +6,18 @@
 //  Copyright __MyCompanyName__ 2004. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <QSCore/QSCore.h>
-#import "SocialSite.h"
 #import "QSBookmarkProvider.h"
 #import "QSBookmarkProviderFactory.h"
+#import "SocialSite.h"
+#import <Foundation/Foundation.h>
+#import <QSCore/QSCore.h>
 
 @interface QSDeliciousPlugIn_Source : QSObjectSource {
   IBOutlet NSTextField *userField;
   IBOutlet NSTextField *passField;
   IBOutlet NSTextField *hostField;
 }
-@property (nonatomic, strong) NSString *internalPassword;
+@property(nonatomic, strong) NSString *internalPassword;
 
 - (IBAction)settingsChanged:(id)sender;
 @end
