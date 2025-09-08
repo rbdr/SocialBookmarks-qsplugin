@@ -14,7 +14,6 @@
 
 @property(nonatomic, strong) NSMutableArray *posts;
 
-// Subclasses can override these methods
 - (NSString *)apiURLForSite:(SocialSite)site andHost:(NSString *)host;
 - (NSURL *)requestURLForSite:(SocialSite)site
                     username:(NSString *)username

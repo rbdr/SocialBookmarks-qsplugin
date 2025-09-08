@@ -114,12 +114,10 @@
                               host:(NSString *)host
                        includeTags:(BOOL)includeTags {
 
-  // Try cached data first
   NSData *data = [self cachedBookmarkDataForSite:site
                                         username:username
                                             host:host];
 
-  // If no cached data, fetch from API
   if (![data length]) {
     NSURL *requestURL = [self requestURLForSite:site
                                        username:username
@@ -147,11 +145,9 @@
       return @[];
     }
 
-    // Cache the data
     [self cacheBookmarkData:data forSite:site username:username host:host];
   }
 
-  // Parse XML data
   NSXMLParser *postParser = [[NSXMLParser alloc] initWithData:data];
   [postParser setDelegate:self];
 
@@ -161,13 +157,11 @@
   NSMutableArray *objects = [NSMutableArray arrayWithCapacity:1];
   NSMutableSet *tagSet = [NSMutableSet set];
 
-  // Create bookmark objects
   for (NSDictionary *post in self.posts) {
     QSObject *newObject = [self objectForPost:post];
     if (newObject) {
       [objects addObject:newObject];
 
-      // Collect tags if requested
       if (includeTags) {
         NSString *tagString = [post objectForKey:@"tag"];
         if (tagString.length > 0) {
@@ -178,7 +172,6 @@
     }
   }
 
-  // Create tag objects if requested
   if (includeTags) {
     for (NSString *tag in tagSet) {
       if (tag.length > 0) {

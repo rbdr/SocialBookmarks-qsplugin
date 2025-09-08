@@ -66,12 +66,9 @@
     return @[];
   }
 
-  // Try cached data first
   NSData *data = [self cachedBookmarkDataForHost:host username:username];
 
-  // If no cached data, fetch from API
   if (![data length]) {
-    // Construct Linkding API URL
     NSString *baseURL = host;
     if (![baseURL hasPrefix:@"http://"] && ![baseURL hasPrefix:@"https://"]) {
       baseURL = [NSString stringWithFormat:@"https://%@", baseURL];
@@ -114,11 +111,9 @@
       return @[];
     }
 
-    // Cache the data
     [self cacheBookmarkData:data forHost:host username:username];
   }
 
-  // Parse JSON data
   NSError *jsonError = nil;
   NSDictionary *jsonResponse =
       [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
@@ -137,13 +132,11 @@
   NSMutableArray *objects = [NSMutableArray arrayWithCapacity:1];
   NSMutableSet *tagSet = [NSMutableSet set];
 
-  // Create bookmark objects
   for (NSDictionary *bookmark in results) {
     QSObject *newObject = [self objectForLinkdingBookmark:bookmark];
     if (newObject) {
       [objects addObject:newObject];
 
-      // Collect tags if requested
       if (includeTags) {
         NSArray *tags = [bookmark objectForKey:@"tag_names"];
         if (tags && [tags isKindOfClass:[NSArray class]]) {
@@ -153,7 +146,6 @@
     }
   }
 
-  // Create tag objects if requested
   if (includeTags) {
     for (NSString *tag in tagSet) {
       if (tag.length > 0) {
